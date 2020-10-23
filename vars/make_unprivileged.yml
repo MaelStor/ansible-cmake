@@ -1,0 +1,11 @@
+---
+# Specify the options passed to './configure'
+cmake_configure_opts:
+  - '--prefix={{ ansible_env.HOME }}/.local'
+  - '--docdir=share'
+  - '--mandir=share'
+
+cmake_make_opts: []
+cmake_make_test_skip: no
+
+# vim: set ft=yaml.ansible :

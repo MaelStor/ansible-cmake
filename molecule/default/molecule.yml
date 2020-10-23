@@ -1,0 +1,41 @@
+---
+dependency:
+  name: galaxy
+driver:
+  name: docker
+platforms:
+  - name: cmake_archlinux_package
+    image: "archlinux:latest"
+    env:
+      OS_FAMILY: "archlinux"
+  - name: cmake_debian_package
+    image: "debian:9"
+    env:
+      OS_FAMILY: "debian"
+  - name: cmake_ubuntu_xenial_package
+    image: "ubuntu:xenial"
+    env:
+      OS_FAMILY: "debian"
+  - name: cmake_ubuntu_bionic_package
+    image: "ubuntu:bionic"
+    env:
+      OS_FAMILY: "debian"
+  - name: cmake_centos_package
+    image: "centos:7"
+    env:
+      OS_FAMILY: "redhat"
+lint: |
+  set -e
+  yamllint .
+  ansible-lint
+
+provisioner:
+  name: ansible
+  ansible_args: []
+  config_options:
+    defaults:
+      stdout_callback: yaml
+      stderr_callback: yaml
+
+verifier:
+  name: ansible

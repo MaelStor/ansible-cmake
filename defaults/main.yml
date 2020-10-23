@@ -1,0 +1,14 @@
+---
+bash_env:
+  BASH_ENV: "{{ ansible_env.HOME }}/.bashrc"
+
+cmake_install_method: 'package'
+cmake_install_build_dependencies: yes
+cmake_version: '3.18.3'
+
+workspace_dir: "{{ ansible_env.HOME }}/workspace"
+cmake_base_dir: "{{ workspace_dir }}/cmake"
+cmake_make_dir: "{{ cmake_base_dir }}/cmake-{{ cmake_version }}"
+
+cmake_url: https://github.com/Kitware/CMake/releases/download/v{{ cmake_version }}/cmake-{{ cmake_version }}.tar.gz
+cmake_checksum: "sha256:https://github.com/Kitware/CMake/releases/download/v{{ cmake_version }}/cmake-{{ cmake_version }}-SHA-256.txt"

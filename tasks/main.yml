@@ -1,0 +1,12 @@
+---
+- name: Install cmake with package manager
+  include_tasks: package.yml
+  when: cmake_install_method == 'package'
+
+- name: Install cmake from source as unprivileged user in his home directory
+  include_tasks: make_unprivilege.yml
+  when: cmake_install_method == 'make_unprivileged'
+
+- name: Install cmake from source as root in a global location
+  include_tasks: make_privileged.yml
+  when: cmake_install_method == 'make_privileged'

@@ -1,0 +1,76 @@
+---
+- name: Include configuration options depending on installation method
+  include_vars: "{{ cmake_install_method }}.yml"
+
+- name: Include platform specific variables
+  include_vars: "{{ item }}"
+  with_first_found:
+    - files:
+        - '{{ ansible_distribution.lower() }}.yml'
+        - '{{ ansible_os_family.lower() }}.yml'
+      paths:
+        - '{{ role_path }}/vars'
+
+- name: Install build dependencies
+  package:
+    name: "{{ item }}"
+  loop: "{{ cmake_make_dependencies }}"
+  become: yes
+  become_user: root
+  when: cmake_install_build_dependencies
+
+- name: Make cmake
+  block:
+    - name: Create working dir
+      file:
+        path: "{{ cmake_base_dir }}"
+        state: directory
+
+    - name: Download cmake {{ cmake_version }}
+      get_url:
+        dest: "{{ cmake_base_dir }}"
+        url: "{{ cmake_url }}"
+        checksum: "{{ cmake_checksum | default(omit) }}"
+
+    - name: Unarchive package
+      unarchive:
+        src: "{{ cmake_base_dir }}/cmake-{{ cmake_version }}.tar.gz"
+        dest: "{{ cmake_base_dir }}"
+        remote_src: yes
+
+    - name: Bootstrap cmake
+      shell: 'set -e; ./bootstrap {{ cmake_configure_opts | join(" ") }} |& tee {{ workspace_dir }}/cmake_bootstrap.log'
+      args:
+        # creates: "Makefile"
+        executable: /bin/bash
+        chdir: "{{ cmake_make_dir }}"
+      environment: "{{ bash_env }}"
+
+    - name: Make cmake
+      shell: 'set -e; make {{ cmake_make_opts | join(" ") }} |& tee {{ workspace_dir }}/cmake_make.log'
+      args:
+        # creates: "{{ workspace_dir }}/cmake_make.log"
+        executable: /bin/bash
+        chdir: "{{ cmake_make_dir }}"
+      environment: "{{ bash_env }}"
+
+    - name: >
+        'Test make of cmake (this may take a while...  Skip with
+        cmake_make_test_skip: yes)'
+      shell: 'set -e; make test |& tee {{ workspace_dir }}/cmake_make_test.log'
+      args:
+        # creates: '{{ workspace_dir }}/cmake_make_test.log'
+        executable: /bin/bash
+        chdir: "{{ cmake_make_dir }}"
+      environment: "{{ bash_env }}"
+      when: not cmake_make_test_skip
+
+    - name: Install cmake
+      shell: 'set -e; make install |& tee {{ workspace_dir }}/cmake_make_install.log'
+      args:
+        # creates: "{{ local_dir }}/bin/cmake"
+        executable: /bin/bash
+        chdir: "{{ cmake_make_dir }}"
+      environment: "{{ bash_env }}"
+  become: "{{ cmake_install_method == 'make_privileged' }}"
+  become_user: root

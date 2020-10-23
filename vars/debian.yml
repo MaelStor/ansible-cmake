@@ -1,0 +1,9 @@
+---
+cmake_packages:
+  - cmake
+  - cmake-doc
+  - cmake-extras
+  - extra-cmake-modules
+
+cmake_make_dependencies:
+  - build-essential

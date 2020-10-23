@@ -1,0 +1,7 @@
+---
+ruby_packages:
+  - cmake
+  - extra-cmake-modules
+
+ruby_make_dependencies:
+  - base-devel

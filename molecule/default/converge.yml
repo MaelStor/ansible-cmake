@@ -1,0 +1,12 @@
+---
+- name: Converge
+  hosts: all
+  become: yes
+  become_user: root
+
+  roles:
+    - role: cmake
+      vars:
+        cmake_install_method: package
+
+# vim: set ft=yaml.ansible :
